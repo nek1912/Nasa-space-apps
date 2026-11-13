@@ -1,0 +1,23 @@
+{
+  "crops": [
+    {"name": "Wheat", "family": "Poaceae", "nfix": false},
+    {"name": "Corn", "family": "Poaceae", "nfix": false},
+    {"name": "Soybean", "family": "Fabaceae", "nfix": true},
+    {"name": "Alfalfa", "family": "Fabaceae", "nfix": true},
+    {"name": "Rice", "family": "Poaceae", "nfix": false},
+    {"name": "Cotton", "family": "Malvaceae", "nfix": false},
+    {"name": "Barley", "family": "Poaceae", "nfix": false},
+    {"name": "Oats", "family": "Poaceae", "nfix": false},
+    {"name": "Sunflower", "family": "Asteraceae", "nfix": false},
+    {"name": "Potato", "family": "Solanaceae", "nfix": false},
+    {"name": "Tomato", "family": "Solanaceae", "nfix": false},
+    {"name": "Cucumber", "family": "Cucurbitaceae", "nfix": false},
+    {"name": "Bean", "family": "Fabaceae", "nfix": true},
+    {"name": "Pea", "family": "Fabaceae", "nfix": true},
+    {"name": "Lentil", "family": "Fabaceae", "nfix": true},
+    {"name": "Canola", "family": "Brassicaceae", "nfix": false},
+    {"name": "Safflower", "family": "Asteraceae", "nfix": false},
+    {"name": "Sorghum", "family": "Poaceae", "nfix": false},
+    {"name": "Millet", "family": "Poaceae", "nfix": false}
+  ]
+}

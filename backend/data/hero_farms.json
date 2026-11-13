@@ -1,0 +1,7 @@
+{
+  "farms": [
+    {"id": "ks_finney", "location": "Kansas, Finney County", "crop": "Wheat", "area_hectares": 120, "soil_type": "Loam", "yield_last_year": 3.5},
+    {"id": "ia_story", "location": "Iowa, Story County", "crop": "Corn", "area_hectares": 85, "soil_type": "Clay Loam", "yield_last_year": 9.2},
+    {"id": "ca_fresno", "location": "California, Fresno County", "crop": "Cotton", "area_hectares": 200, "soil_type": "Sandy Loam", "yield_last_year": 1.8}
+  ]
+}

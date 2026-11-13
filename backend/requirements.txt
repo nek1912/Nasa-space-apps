@@ -1,0 +1,9 @@
+# FieldShift Backend Production Dependencies
+fastapi
+uvicorn[standard]
+httpx
+numpy
+scipy
+pydantic
+structlog
+python-dotenv
