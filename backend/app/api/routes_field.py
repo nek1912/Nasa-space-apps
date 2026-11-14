@@ -1,8 +1,14 @@
 from fastapi import APIRouter, HTTPException
 
 from app.data_store import SourceDataUnavailable, load_processed_summary
-from app.schemas import CdLYearInfo, LayerInfoResponse, RegionSummary, SsurgoLayerInfo
+from app.services.si_diagnostics import (
+    classify_soil_texture,
+    count_hot_days,
+    crop_diversity_score,
+    summarize_precipitation,
+)
 from app.services.wms import CDL_LAYERS, CDL_WMS_BASE, SSURGO_WMS_BASE, SSURGO_LAYERS, STORY_COUNTY_BBOX, build_wms_getmap_url
+from app.schemas import CdLYearInfo, LayerInfoResponse, RegionSummary, SsurgoLayerInfo
 
 router = APIRouter(prefix="/api", tags=["region"])
 
@@ -59,3 +65,84 @@ def get_layer_info() -> LayerInfoResponse:
             "via FIPS code are available. AOI proof-of-concept is blocked."
         ),
     )
+
+
+@router.get("/indicators")
+def get_indicators() -> dict:
+    """Return Phase 4 indicators computed from the real ingested source data.
+
+    Computes transparent indicators from NASA POWER weather, USDA NRCS SSURGO
+    soil, and USDA NASS CDL crop data. Missing source values propagate as
+    null; nothing is fabricated or interpolated.
+    """
+    try:
+        payload = load_processed_summary()
+    except SourceDataUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    # --- Weather indicators from NASA POWER daily series ---
+    tmax_series = None
+    precip_series = None
+    for block in payload.get("weather_parameters", []):
+        if block.get("parameter") == "T2M_MAX":
+            tmax_series = block.get("daily", [])
+        if block.get("parameter") == "PRECTOTCORR":
+            precip_series = block.get("daily", [])
+
+    tmax_values = [d.get("value") for d in tmax_series] if tmax_series else []
+    precip_values = [d.get("value") for d in precip_series] if precip_series else []
+
+    hot_days = count_hot_days(tmax_values, threshold_c=34.0)
+    precipitation = summarize_precipitation(precip_values)
+
+    # --- Soil indicator from SSURGO (first map unit, first component, first horizon) ---
+    soils = payload.get("soils", [])
+    soil_texture = None
+    if soils:
+        first_mu = soils[0]
+        first_comp = first_mu.get("components", [None])[0] if first_mu.get("components") else None
+        first_horizon = first_comp.get("horizons", [None])[0] if first_comp and first_comp.get("horizons") else None
+        if first_horizon:
+            sand_raw = first_horizon.get("sand_pct")
+            silt_raw = first_horizon.get("silt_pct")
+            clay_raw = first_horizon.get("clay_pct")
+            try:
+                sand = float(sand_raw)
+                silt = float(silt_raw)
+                clay = float(clay_raw)
+                soil_texture = classify_soil_texture(sand, silt, clay)
+            except (TypeError, ValueError):
+                soil_texture = None
+
+    # --- Crop indicator from CDL annual statistics ---
+    crops = payload.get("crops", [])
+    crop_diversity = crop_diversity_score(crops)
+
+    return {
+        "region": payload.get("region", {}),
+        "indicators": {
+            "temperature": {
+                "indicator": "hot_day_count",
+                "threshold_c": 34.0,
+                "description": "Count of days where daily max temperature exceeds 34°C",
+                **hot_days,
+            },
+            "precipitation": {
+                "indicator": "precipitation_summary",
+                "units": "mm",
+                "description": "Total, mean, and wet-day count of daily precipitation",
+                **precipitation,
+            },
+            "soil": {
+                "indicator": "soil_texture",
+                "description": "USDA texture class from first SSURGO map unit / component / horizon",
+                "texture_class": soil_texture,
+            },
+            "crops": {
+                "indicator": "crop_diversity",
+                "description": "Crop diversity across CDL years (Herfindahl-based inverse)",
+                **crop_diversity,
+            },
+        },
+        "note": "All indicators computed from real ingested source data. Missing source values are null, not fabricated.",
+    }
