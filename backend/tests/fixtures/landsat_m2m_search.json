@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "entityId": "LC09_L2SP_027031_20250615_20250626_02_T2",
+      "displayId": "LC09_L2SP_027031_20250615_20250626_02_T2",
+      "spatialCoverage": "POLYGON((-93.8 42.3,-93.3 42.3,-93.3 41.8,-93.8 41.8,-93.8 42.3))",
+      "cloudCover": 5.2,
+      "acquisitionDate": "2025-06-15",
+      "sensor": "OLI-TIRS",
+      "satellite": "LANDSAT_9",
+      "path": 27,
+      "row": 31,
+      "size": 542000000,
+      "downloadOptions": [
+        {
+          "id": "LC09_L2SP_027031_20250615_20250626_02_T2-SR_B4",
+          "name": "SR_B4",
+          "size": 45000000,
+          "available": true
+        },
+        {
+          "id": "LC09_L2SP_027031_20250615_20250626_02_T2-SR_B5",
+          "name": "SR_B5",
+          "size": 45000000,
+          "available": true
+        },
+        {
+          "id": "LC09_L2SP_027031_20250615_20250626_02_T2-QA_PIXEL",
+          "name": "QA_PIXEL",
+          "size": 15000000,
+          "available": true
+        }
+      ]
+    },
+    {
+      "entityId": "LC09_L2SP_027031_20250715_20250726_02_T2",
+      "displayId": "LC09_L2SP_027031_20250715_20250726_02_T2",
+      "spatialCoverage": "POLYGON((-93.8 42.3,-93.3 42.3,-93.3 41.8,-93.8 41.8,-93.8 42.3))",
+      "cloudCover": 12.8,
+      "acquisitionDate": "2025-07-15",
+      "sensor": "OLI-TIRS",
+      "satellite": "LANDSAT_9",
+      "path": 27,
+      "row": 31,
+      "size": 538000000,
+      "downloadOptions": [
+        {
+          "id": "LC09_L2SP_027031_20250715_20250726_02_T2-SR_B4",
+          "name": "SR_B4",
+          "size": 44500000,
+          "available": true
+        },
+        {
+          "id": "LC09_L2SP_027031_20250715_20250726_02_T2-SR_B5",
+          "name": "SR_B5",
+          "size": 44500000,
+          "available": true
+        },
+        {
+          "id": "LC09_L2SP_027031_20250715_20250726_02_T2-QA_PIXEL",
+          "name": "QA_PIXEL",
+          "size": 14800000,
+          "available": true
+        }
+      ]
+    }
+  ],
+  "recordsReturned": 2,
+  "totalRecords": 2
+}

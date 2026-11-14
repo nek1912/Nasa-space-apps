@@ -22,3 +22,10 @@
 ## ADR-005: 2.5-Second Circuit Breaker with Benchmark Fallback
 - **Context:** Government REST APIs (`NASA POWER`, `USDA NRCS SDA`, `USGS`) occasionally throttle or time out during live hackathon judging.
 - **Decision:** Wrap all `httpx.AsyncClient` calls with a 2.5-second timeout that seamlessly falls back to the nearest benchmark profile in `backend/data/hero_farms.json`.
+
+## ADR-009: Phase 3 Landsat NDVI — M2M API + Deferred Raster Processing (PROPOSED)
+- **Context:** Phase 3 requires Landsat 8/9 Collection 2 Level-2 Surface Reflectance (30 m) to compute NDVI time series. Reading GeoTIFF pixels requires a raster library, but `rasterio`/`gdal` are banned by RULES.md §5.
+- **Decision:** Two-part approach:
+  1. **M2M API client** (implemented now, no raster dependency): authenticate via `login-token`, search scenes via `scene-search` using dataset `landsat_ot_c2_l2`, and drive the `download-options` → `download-request` → `download-retrieve` flow. Requires an ERS account with MACHINE role (approval takes days).
+  2. **Raster processing** (deferred): NDVI computation from downloaded GeoTIFFs is NOT implemented. A `rasterio` exception is PROPOSED in RULES.md §5 for a single offline preprocessing script only. Until approved, no `rasterio` import, no hand-written GeoTIFF parser, and no computed NDVI values.
+- **Consequence:** Phase 3 can acquire scene metadata and download URLs now, but quantitative NDVI values remain gated on the `rasterio` exception approval and Landsat data download. The app may display verified Landsat WMS tiles for context without computing NDVI.
