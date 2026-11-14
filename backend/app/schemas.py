@@ -203,3 +203,42 @@ class LayerInfoResponse(BaseModel):
         description="If CDL AOI/bbox statistics cannot be queried, the reason; "
         "null when available",
     )
+
+
+class RotationStrategy(BaseModel):
+    """One crop rotation strategy card with MCDA scores and explainability."""
+
+    strategy_id: int = Field(description="0 = baseline, 1-3 = optimized alternatives")
+    name: str = Field(description="Human-readable strategy name")
+    description: str = Field(description="Plain-language description of the rotation")
+    is_baseline: bool = Field(description="True if this is the current CDL-derived baseline")
+    sequence: list[str] = Field(description="Crop sequence in the rotation")
+    scores: dict[str, float] = Field(
+        description="Six normalized radar scores (0-100): water_efficiency, soil_health, erosion_armor, pest_disruption, climate_resilience, market_return"
+    )
+    overall_score: float = Field(description="Weighted overall score (0-100)")
+    weights: dict[str, float] = Field(
+        description="Farmer priority weights applied (0-10 per axis)"
+    )
+    why_suggested: str = Field(description="Plain-language reason this strategy is suggested")
+    nasa_evidence: str = Field(description="NASA/USDA data sources supporting this strategy")
+    agronomic_benefits: list[str] = Field(
+        description="List of agronomic benefits of this rotation"
+    )
+    information_gaps: list[str] = Field(
+        description="Data limitations that affect this strategy's reliability"
+    )
+    risks_requiring_local_review: list[str] = Field(
+        description="Risks a local extension officer should review with the farmer"
+    )
+
+
+class RecommendRotationsResponse(BaseModel):
+    """Complete response of `GET /api/recommend-rotations`."""
+
+    region: RegionIdentity
+    data_limitations: str = Field(
+        description="Honest statement of what data supports these recommendations and what it cannot claim"
+    )
+    strategies: list[RotationStrategy]
+    baseline_strategy_id: int = Field(description="Index of the baseline strategy in the strategies list")

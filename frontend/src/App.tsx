@@ -1,11 +1,12 @@
 /* Main App component — Phase 1 + Phase 2 single-region real-data dashboard. */
 import React, { useEffect, useState } from "react";
-import { LayerInfoResponse, RegionSummary } from "./types/fieldshift";
-import { fetchLayerInfo, fetchRegionSummary } from "./api/client";
+import { LayerInfoResponse, RecommendRotationsResponse, RegionSummary } from "./types/fieldshift";
+import { fetchLayerInfo, fetchRecommendations, fetchRegionSummary } from "./api/client";
 import { FarmSelectorBar } from "./components/FarmSelectorBar";
 import { FieldMapCanvas } from "./components/FieldMapCanvas";
 import { LayerSelector } from "./components/LayerSelector";
 import { Legend } from "./components/Legend";
+import { RotationCards } from "./components/RotationCards";
 import { ScopeLabel } from "./components/ScopeLabel";
 import { CropHistoryChart } from "./components/CropHistoryChart";
 import { SoilSummary } from "./components/SoilSummary";
@@ -15,6 +16,7 @@ import { DataSourcesPanel } from "./components/DataSourcesPanel";
 const App: React.FC = () => {
     const [data, setData] = useState<RegionSummary | null>(null);
     const [layerInfo, setLayerInfo] = useState<LayerInfoResponse | null>(null);
+    const [recommendations, setRecommendations] = useState<RecommendRotationsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [cdlYear, setCdlYear] = useState<number>(2021);
@@ -23,11 +25,12 @@ const App: React.FC = () => {
     useEffect(() => {
         let cancelled = false;
 
-        Promise.all([fetchRegionSummary(), fetchLayerInfo()])
-            .then(([summary, info]) => {
+        Promise.all([fetchRegionSummary(), fetchLayerInfo(), fetchRecommendations()])
+            .then(([summary, info, recs]) => {
                 if (!cancelled) {
                     setData(summary);
                     setLayerInfo(info);
+                    setRecommendations(recs);
                 }
             })
             .catch((err) => {
@@ -95,6 +98,7 @@ const App: React.FC = () => {
             <CropHistoryChart crops={data.crops} />
             <SoilSummary soils={data.soils} />
             <WeatherChart monthly={data.weather_monthly} />
+            <RotationCards strategies={recommendations.strategies} />
         </div>
     );
 };

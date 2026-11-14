@@ -1,0 +1,15 @@
+Phase 5: crop rotation recommendation engine
+
+- Add backend/app/services/rotation_engine.py: deterministic MCDA engine scoring
+  4 rotation strategies across 6 axes (water_efficiency, soil_health,
+  erosion_armor, pest_disruption, climate_resilience, market_return) using real
+  ingested CDL, SSURGO, and NASA POWER data. No field-level data fabricated.
+- Add GET /api/recommend-rotations endpoint returning 4 strategy cards with
+  explainability (why_suggested, nasa_evidence, agronomic_benefits,
+  information_gaps, risks_requiring_local_review)
+- Add RotationStrategy + RecommendRotationsResponse to schemas.py (backend) and
+  fieldshift.ts (frontend) — Schema Lock Law
+- Add RotationCards React component with radar charts and card layout
+- Integrate fetchRecommendations into api/client.ts and App.tsx
+- Add 4 offline rotation engine tests (29 total backend tests passing)
+- Frontend build passes

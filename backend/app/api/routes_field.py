@@ -7,8 +7,9 @@ from app.services.si_diagnostics import (
     crop_diversity_score,
     summarize_precipitation,
 )
+from app.services.rotation_engine import recommend_rotations
 from app.services.wms import CDL_LAYERS, CDL_WMS_BASE, SSURGO_WMS_BASE, SSURGO_LAYERS, STORY_COUNTY_BBOX, build_wms_getmap_url
-from app.schemas import CdLYearInfo, LayerInfoResponse, RegionSummary, SsurgoLayerInfo
+from app.schemas import CdLYearInfo, LayerInfoResponse, RecommendRotationsResponse, RegionSummary, SsurgoLayerInfo
 
 router = APIRouter(prefix="/api", tags=["region"])
 
@@ -146,3 +147,37 @@ def get_indicators() -> dict:
         },
         "note": "All indicators computed from real ingested source data. Missing source values are null, not fabricated.",
     }
+
+
+@router.get("/recommend-rotations", response_model=RecommendRotationsResponse)
+def recommend_rotations_endpoint() -> RecommendRotationsResponse:
+    """Return 4 crop rotation strategies scored by MCDA from real ingested data.
+
+    Strategy 0 is the county baseline (CDL-derived); strategies 1-3 are
+    evidence-backed alternatives (Water-Saver, Soil Armor, Climate-Hedged).
+    All scores are transparent, deterministic, and computed from real source
+    data — no field-level data is fabricated.
+    """
+    try:
+        payload = load_processed_summary()
+    except SourceDataUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    indicators = payload.get("indicators", {})
+
+    result = recommend_rotations(
+        cdl_crops=payload.get("crops", []),
+        soil_texture=indicators.get("soil", {}).get("texture_class"),
+        weather_indicators={
+            "temperature": indicators.get("temperature", {}),
+            "precipitation": indicators.get("precipitation", {}),
+        },
+        crop_diversity=indicators.get("crops", {}),
+    )
+
+    return RecommendRotationsResponse(
+        region=payload.get("region", {}),
+        data_limitations=result["data_limitations"],
+        strategies=result["strategies"],
+        baseline_strategy_id=result["baseline_strategy_id"],
+    )

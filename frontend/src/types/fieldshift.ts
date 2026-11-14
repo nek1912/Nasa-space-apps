@@ -125,3 +125,27 @@ export interface RegionSummary {
     weather_parameters: WeatherParameter[];
     weather_monthly: WeatherMonth[];
 }
+
+/* Phase 5 — Rotation recommendation metadata (mirrors backend RotationStrategy / RecommendRotationsResponse) */
+export interface RotationStrategy {
+    strategy_id: number;
+    name: string;
+    description: string;
+    is_baseline: boolean;
+    sequence: string[];
+    scores: Record<string, number>;
+    overall_score: number;
+    weights: Record<string, number>;
+    why_suggested: string;
+    nasa_evidence: string;
+    agronomic_benefits: string[];
+    information_gaps: string[];
+    risks_requiring_local_review: string[];
+}
+
+export interface RecommendRotationsResponse {
+    region: RegionIdentity;
+    data_limitations: string;
+    strategies: RotationStrategy[];
+    baseline_strategy_id: number;
+}
