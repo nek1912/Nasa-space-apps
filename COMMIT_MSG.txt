@@ -1,6 +1,0 @@
-Phase 6: hackathon demo preparation
-
-- Add DEMO.md: step-by-step demo walkthrough, API endpoints, test suite, hackathon talking points
-- Add EVIDENCE.md: complete data provenance trail, service verification results, known limitations, roadmap gate compliance
-- Clean up COMMIT_MSG.txt
-- Final state: Phases 1-5 complete and verified (29 backend tests pass, frontend builds, all 6 API endpoints return 200)
