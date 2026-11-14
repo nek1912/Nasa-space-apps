@@ -5,5 +5,7 @@ httpx
 numpy
 scipy
 pydantic
-structlog
 python-dotenv
+
+# Test dependencies
+pytest

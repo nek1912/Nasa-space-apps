@@ -1,17 +1,16 @@
+import logging
 import os
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
-import structlog
+import time
 
-# Structlog production-structured logging
-structlog.configure(
-    processors=[
-        structlog.dev.ConsoleRenderer()
-    ]
-)
+from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from app.api import routes_field
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("fieldshift")
 
 app = FastAPI(
     title="FieldShift API",
@@ -20,46 +19,32 @@ app = FastAPI(
     redoc_url="/api/redoc" if os.getenv("APP_ENV") != "production" else None,
 )
 
-# Production security middleware
-if os.getenv("APP_ENV") == "production":
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=["your-domain.com", ".your-domain.com"],
-    )
-
-# CORS - production-ready configuration
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-    allow_origins_regex=None,
     max_age=86400,
 )
 
-# Structured request logging middleware
+
 @app.middleware("http")
-async def structured_logging(request: Request, call_next):
-    import time
-    start time = time.time()
+async def request_logging(request: Request, call_next):
+    start_time = time.time()
     response = await call_next(request)
-    process_time = time.time() - start_time
-    structlog.info(
-        "http_request",
-        method=request.method,
-        path=request.url.path,
-        status=response.status_code,
-        process_time=f"{process_time:.3f}",
-        client_host=request.client.host,
-        client_port=request.client.port,
-        env=os.getenv("APP_ENV", "development"),
+    logger.info(
+        "http_request %s %s -> %s in %.1fms",
+        request.method,
+        request.url.path,
+        response.status_code,
+        (time.time() - start_time) * 1000,
     )
     return response
 
-# Global exception handler
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -67,20 +52,24 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={"error": exc.detail, "path": request.url.path},
     )
 
+
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    structlog.error("unhandled_exception", error=str(exc), path=request.url.path)
+    logger.exception("unhandled_exception on %s", request.url.path)
     return JSONResponse(
         status_code=500,
         content={"error": "Internal server error", "path": request.url.path},
     )
 
 
+app.include_router(routes_field.router)
+
+
 @app.get("/")
 def root():
-    {"status": "ok", "environment": os.getenv("APP_ENV", "development")}
+    return {"status": "ok", "environment": os.getenv("APP_ENV", "development")}
 
 
 @app.get("/health")
 def health_check():
-    {"status": "healthy", "environment": os.getenv("APP_ENV", "development")}
+    return {"status": "healthy", "environment": os.getenv("APP_ENV", "development")}

@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "totalCount": 2,
+  "fileName": "CDL_2021_19169.tif",
+  "rows": [
+    {"value": 1, "count": 1000, "category": "Corn", "color": "#FFD400", "acreage": 100.0},
+    {"value": 5, "count": 500, "category": "Soybeans", "color": "#267300", "acreage": 50.0}
+  ]
+}

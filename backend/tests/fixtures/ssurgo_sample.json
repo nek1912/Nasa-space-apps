@@ -1,0 +1,8 @@
+{
+  "Table": [
+    ["areasymbol", "mukey", "musym", "muname", "compname", "comppct_r", "hzdept_r", "hzdepb_r", "sandtotal_r", "silttotal_r", "claytotal_r", "aws025wta"],
+    ["IA169", "1001", "100", "Mukey A loam", "Loam component", 85, 0, 15, 40, 40, 20, 12.5],
+    ["IA169", "1001", "100", "Mukey A loam", "Loam component", 85, 15, 30, 35, 45, 20, 12.5],
+    ["IA169", "1002", "101", "Mukey B clay loam", "Clay loam component", 90, 0, 20, 20, 40, 40, 15.0]
+  ]
+}

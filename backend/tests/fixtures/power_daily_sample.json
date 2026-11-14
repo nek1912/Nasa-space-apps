@@ -1,0 +1,16 @@
+{
+  "type": "Feature",
+  "geometry": {"type": "Point", "coordinates": [-93.631, 42.03, 310.22]},
+  "properties": {
+    "parameter": {
+      "T2M_MAX": {"20210101": -3.64, "20210102": -999, "20210103": 0.8},
+      "PRECTOTCORR": {"20210101": 0.04, "20210102": 0.01, "20210103": 0}
+    }
+  },
+  "header": {"fill_value": -999, "time_standard": "UTC"},
+  "parameters": {
+    "T2M_MAX": {"units": "C", "longname": "Temperature at 2 Meters Maximum"},
+    "PRECTOTCORR": {"units": "mm/day", "longname": "Precipitation Corrected"}
+  },
+  "messages": []
+}
